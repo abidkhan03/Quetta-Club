@@ -41,13 +41,13 @@ http://127.0.0.1:8000
 
 ![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/dashboard.png)
 
-file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/customers.png
+![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/customers.png)
 
-file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/bills.png
+![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/bills.png)
 
-file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/view-bills.png
+![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/view-bills.png)
 
-file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/reports.png
+![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/reports.png)
 
 
 ## contributor
