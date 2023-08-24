@@ -50,7 +50,7 @@ http://127.0.0.1:8000
 ![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/reports.png)
 
 
-## contributor
+## contributors
 
 
 | Developer | Github |
