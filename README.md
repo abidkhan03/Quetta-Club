@@ -39,7 +39,7 @@ http://127.0.0.1:8000
 ```
 ## Screenshots
 
-![N|Solid](file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/dashboard.png)
+![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/dashboard.png)
 
 file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/customers.png
 
