@@ -37,6 +37,18 @@ your preferred browser.
 ```sh
 http://127.0.0.1:8000
 ```
+## Screenshots
+
+file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/dashboard.png
+
+file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/customers.png
+
+file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/bills.png
+
+file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/view-bills.png
+
+file:///home/abdullah/Desktop/django-projects/Quetta-Club/screenshots/reports.png
+
 
 ## contributor
 
