@@ -39,6 +39,8 @@ http://127.0.0.1:8000
 ```
 ## Screenshots
 
+![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/login.png)
+
 ![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/dashboard.png)
 
 ![N|Solid](https://github.com/abidkhan03/Quetta-Club/blob/main/screenshots/customers.png)
