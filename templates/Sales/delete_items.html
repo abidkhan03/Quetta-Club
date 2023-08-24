@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quetta Club</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+</head>
+
+<body>
+    <div class="card"> 
+        <form  method="post" action="">
+            {% csrf_token %}
+            <h1 style="text-align: center;">Are you sure you want to delete Bill No "{{queryset.bill_no}}" ?</h1><br>
+            <div class="grid">
+                
+                <input style="background-color: rgb(154, 0, 0);" class="btn " type="submit" value="Yes, I'm sure" />
+                <a href="{% url 'Sales:sales' %}">
+                    <div class="btn" style="background-color: rgb(142, 142, 142);">No, take me back </div>
+                </a>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>

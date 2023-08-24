@@ -1,0 +1,296 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <title>Quetta Club</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% for message in messages %}
+        {% if message.tags == "error" %}
+        <div class="messages error">
+            <div class="">
+                {{message}}
+            </div>
+        </div>
+        {% else %}
+        <div class="messages success">
+            <div class="">
+                {{message}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="row">
+            <div class="card">
+                <h2 class="title">Bill Sale / Account</h2>
+                <h2>Sale Details</h2>
+
+                <form action="{% url 'Sales:sales' %}" method="post" class="post-form" id="post-form">
+                    {% csrf_token %}
+
+                    <div class="grid col-100">
+                        <input class="" id="created-date" type="date" name="create_on" hidden>
+                        <div class="grid-item">
+                            <label class="form-label">Bill No</label>
+                            <input class="form-control" type="text" required name="bill_no" id="bill_no"
+                                onchange="billCheck(this)">
+                        </div>
+                        <div class="grid-item">
+                            <label class="form-label">PoS No</label>
+                            <input class="form-control" type="text" required name="PoS_no" onchange="posCheck(this)">
+                        </div>
+                        <div class="grid-item">
+                            <label class="form-label">Date</label>
+                            <input class="form-control" id="datePicker" type="date" name="date">
+                        </div>
+                        <script>
+                            document.getElementById('datePicker').valueAsDate = new Date();
+                        </script>
+                        <div class="">
+                            <label class="form-label">Month</label>
+                            <input class="form-control" required type="text" name="month">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Rank</label>
+                            <input class="form-control" readonly type="text" name="customer_rank"
+                                value="{{customer_data.customer_rank}}">
+                            <!-- <select name="customer_rank" aria-readonly="true" id="rank" class="form-control">
+                                <option value="{{customer_data.customer_rank}}">{{customer_data.customer_rank}}</option>
+                                <option value="Army">Army</option>
+                                <option value="Civilian">Civilian</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Other">Other</option>
+                            </select> -->
+                        </div>
+                        <div class="">
+                            <label class="form-label">Name</label>
+                            <input class="form-control" readonly type="text" name="customer_name" id="name"
+                                value="{{customer_data.customer_name}}">
+                        </div>
+
+
+                        <div class="">
+                            <label class="form-label">Address</label>
+                            <input class="form-control" readonly type="text" name="address" id="address"
+                                value="{{customer_data.customer_address}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">On Account of</label>
+                            <select name="account_of" required id="account_of" class="form-control">
+                                <option value="take_away_on" selected>Take Away on</option>
+                                <option value="home_deliver_on">Home Delivery on</option>
+                                <option value="dinner_on">Dinner on</option>
+                                <option value="coffee_shop_on">Coffee Shop on</option>
+                                <option value="bakery_shop_on">Bakery Shop on</option>
+                                <option value="midnight_cafe_on">Midnight Cafe on</option>
+                                <option value="hi_tea_on">Hi Tea on</option>
+                                <option value="tea_bar_on">Tea Bar on</option>
+                                <option value="lunch_on">Lunch on</option>
+                                <option value="tea_braak_on">Tea Braak on</option>
+                                <option value="buffer_dinner_on">Buffet Dinner on</option>
+                                <option value="party_on">Party on</option>
+                                <option value="guest_room_on">Guest Room on</option>
+                                <option value="birthday_party_on">Birthday Party on</option>
+                                <option value="seminar">Seminar</option>
+                                <option value="conference">Conference</option>
+                                <option value="weeding">Weeding</option>
+                            </select>
+                        </div>
+                        <div class="">
+                            <label class="form-label">Amount</label>
+                            <input class="form-control" type="text" name="amount" id="amount" required>
+                        </div>
+                        <div class="">
+                            <label class="form-label">Discount</label>
+                            <input class="form-control" type="text" name="discount" id="discount" required value="0">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Net Amount</label>
+                            <input class="form-control" type="text" name="net_amount" id="net-amount" required>
+                        </div>
+                        <div class="">
+                            <label class="form-label">Remarks</label>
+                            <input class="form-control" type="text" name="remarks">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="flex">
+                        <button class="btn" name="Save" value="Save">
+                            Save
+                        </button>
+                        <a class="btn cancel" href="{% url 'Customers:customers' %}">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- <div>
+                <h2>Final Sale</h2>
+                <table class="table" id="Sales_data">
+                    <thead class="table-header">
+
+                        <tr>
+                            <th>Bill No</th>
+                            <th>Month</th>
+                            <th>Rank</th>
+                            <th>POS NO</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>On Account Of</th>
+                            <th>Dated</th>
+                            <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Net Amount</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for sale in today_sale %}
+                        <tr>
+                            <td>{{ sale.bill_no|default:"00" }}</td>
+                            <td>{{ sale.month|default:"--" }}</td>
+                            <td>{{sale.customer_id.customer_rank}}</td>
+                            <td>{{ sale.PoS_no|default:"00" }}</td>
+                            <td>{{sale.customer_id.customer_name}}</td>
+                            <td>{{ sale.address|default:"--" }}</td>
+                            <td>{{ sale.account_of|default:"--" }}</td>
+                            <td>{{ sale.date|default:"--" }}</td>
+                            <td>{{ sale.amount|intcomma|default:"00" }}</td>
+                            <td>{{ sale.discount|intcomma|default:"00" }}</td>
+                            <td>{{ sale.net_amount|intcomma|default:"00" }}</td>
+                            <td>{{ sale.remarks|default:" " }}</td>
+                            <td>
+                                <div class="list">
+                                    <a href="{% url 'Sales:update_sales' %}?id={{sale.id}}" class="">Edit</a>
+                                    <a href="{% url 'Sales:update_sales' %}?id={{sale.id}}" class="">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+
+                </table>
+
+
+                <hr>
+                <div class="flex">
+                    <button class="btn" name="Save" value="Save">
+                        Upload
+                    </button>
+                    <button class="btn cancel">
+                        Delete
+                    </button>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+
+    </div>
+    <script>
+        let createdDate = new Date();
+        document.getElementById("created-date").value = createdDate.getFullYear() + '-' + ('0' + (createdDate.getMonth() + 1)).slice(-2) + '-' + ('0' + createdDate.getDate()).slice(-2);
+
+        let bill_nos = [];
+        let pos = [];
+        {% for sale in sales %}
+        bill_nos.push('{{ sale.bill_no }}');
+        pos.push('{{ sale.PoS_no }}');
+        {% endfor %}
+
+        // function for check duplicate bills
+        function billCheck(data) {
+            if (bill_nos.includes(data.value)) {
+                console.log("Bill No Already Exist");
+                document.getElementById("bill_no").style.border = "1px solid red";
+            }
+            else {
+                console.log("Bill No Not Exist");
+                document.getElementById("bill_no").style.border = "1px solid green";
+            }
+
+        }
+
+        // function for check duplicate pos
+        function posCheck(data) {
+            if (pos.includes(data.value)) {
+                console.log("PoS No Already Exist");
+                document.getElementById("PoS_no").style.border = "1px solid red";
+            }
+            else {
+                console.log("PoS No Not Exist");
+                document.getElementById("PoS_no").style.border = "1px solid green";
+            }
+
+        };
+
+        document.getElementById("discount").onchange = function () {
+            var amount = document.getElementById('amount').value;
+            var discount = document.getElementById('discount').value;
+            var total = amount - discount;
+            document.getElementById('net-amount').value = total;
+        };
+    </script>
+    <script>
+
+        setTimeout(fade_out, 4000);
+        function fade_out() {
+            $(".messages").fadeOut().empty();
+        }
+        $(".post-form")[0].reset();
+    </script>
+
+</body>
+
+</html>

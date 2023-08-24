@@ -1,0 +1,353 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quetta Club</title>
+    <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="row">
+            <div class="card w-100">
+                <div class="row">
+                    <h2>Customer Bills</h2>
+                    <div class="row ml-5">
+                        <div class="row">
+                            <select name="search_field" id="search_field" class="form-control" style="height: 2.5rem;">
+                                <!-- <option value="">Search By</option> -->
+                                <option value="bill_no" selected>Bill No.</option>
+                                <option value="pos_no">PoS No</option>
+                                <option value="month">Month</option>
+                                <option value="account_of">On Account of</option>
+                                <option value="date">Date</option>
+                            </select>
+                            <input type="search" name="search_value" id="search_value" oninput="SearchbyName();"
+                                class="form-control ml-5 search" placeholder="search ...." style="height: 2.5rem;">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="form-data ml-5">
+                                <input type="button" class="icon" id="print_bill" value=" Print " style="font-weight: bold;"/>
+                            </div>
+                            <div class="form-data ml-5">
+                                <button type="button" class="icon" style="background-color:#00A300; color: white;" onclick="paid_all_bills()"><strong>Pay All Bills</strong></button>
+                            </div>
+                            <div class="choose_file ml-5">
+                                <button type="button" class="icon" onclick="download_table_as_csv('Sales_data');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" height="26px">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                </div>
+                <table class="table" id="Sales_data">
+                    <thead class="table-header">
+                        <tr>&nbsp;
+                        </tr>
+                        <tr>
+                            <!-- <th>Ser No</th> -->
+                            <th>Bill No</th>
+                            <th>Month</th>
+                            <th>Rank</th>
+                            <th>POS NO</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>On Account Of</th>
+                            <th>Dated</th>
+                            <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Net Amount</th>
+                            <th style="visibility: hidden; display: none;"></th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in Sales_data %}
+                        {% if sale.amount > 0 and sale.net_amount > 0 %}
+                        <tr>
+                            <!-- <td>{{sale.id}}</td> -->
+                            <td>{{ sale.bill_no|default:"00" }}</td>
+                            <td>{{ sale.month|default_if_none:"--" }}</td>
+                            <td>{{sale.customer_id.customer_rank}}</td>
+                            <td>{{ sale.PoS_no|default:"00" }}</td>
+                            <td>{{sale.customer_id.customer_name}}</td>
+                            <td>{{ sale.address|default_if_none:"--" }}</td>
+                            <td>{{ sale.account_of|default_if_none:"--" }}</td>
+                            <td>{{ sale.date|default_if_none:"--" }}</td>
+                            <td>{{ sale.amount|default_if_none:"00" }}</td>
+                            <td>{{ sale.discount|default_if_none:"00" }}</td>
+                            <td id="row_net_amount">{{ sale.net_amount|default_if_none:"00" }}</td>
+                            <td style="visibility: hidden; display: none;">{{sale.id}}</td>
+                            <td>{{ sale.remarks|default_if_none:" " }}</td>
+                            <td>
+                                <div class="list">
+
+                                    <a href="{% url 'Sales:update_view_sale' %}?id={{sale.id}}"
+                                        style="background-color: #1e659c; color: rgb(255, 255, 255);">Edit</a>
+                                    <button class="modal" id="paid_modal"
+                                        onclick="paidMOdalOpen('{{sale.id}}','{{sale.net_amount}}')"
+                                        style="background-color: #0c7ed6; color: rgb(246, 244, 244);">Paid</button>
+                                    <button id="comp_modal" class="modal" style="background-color: #1e659c;"
+                                        onclick="compModalOpen('{{sale.id}}','{{sale.net_amount}}')">Complemantery</button>
+                                    <button id="cancel_modal" class="modal" onclick="cancelModalOpen('{{sale.id}}')"
+                                        style="background-color: #6a6a6a;">Cancelled</button>
+                                </div>
+            </div>
+            </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            <tfoot>
+                {% if total_net_amount > 0 %}
+                <tr style="background-color: #727272;">
+                    <td>Total Bills:</td>
+                    <td tyle="font-size: 1.5rem;"><b>{{all_bills|intcomma}}</b></td>
+                    <td></td>
+                    <td>Total Amount:</td>
+                    <td tyle="font-size: 1.5rem;"><b>{{total_amount|intcomma}}</b></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total Discounts:</td>
+                    <td tyle="font-size: 1.5rem;"><b>{{total_discount|intcomma}}</b></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total Net Amount:</td>
+                    <td tyle="font-size: 1.5rem;"><b>{{total_net_amount|intcomma}}</b></td>
+                </tr>
+                {% endif %}
+            </tfoot>
+            </tbody>
+            </table>
+            
+        </div>
+    </div>
+    <!-- paid modal -->
+    <div class="paidModal-open">
+
+        <div class="modal-header">
+
+            <span class="close-btn" onclick="closeModal('.paidModal-open')">&times;</span>
+            <h1 class="modal-title"><b>Paid Bill Modal</b></h1>
+        </div>
+        <!-- <form id="pay_bill" method="">
+                {% csrf_token %} -->
+        <input class="form-control" id="paid-form-id" type="hidden" name="formId" />
+
+        <div class="modal-content">
+            <label class="form-label">RV No</label>
+            <input class="form-control" type="text" name="rv_no" id="rv_no" required>
+
+            <label class="form-label">Date</label>
+            <input class="form-control" type="date" name="paid_date" id="today-date">
+
+            <label class="form-label">Total Bill</label>
+            <input class="form-control" type="text" id="pay_bill_modal_balance" name="paid_balance">
+
+            <label class="form-label">Amount</label>
+            <input class="form-control" type="text" name="paid_amount" id="paid_amount">
+
+
+            <label class="form-label">Remaining</label>
+            <input class="form-control" type="text" name="remaining_balance" id="remaing_amount">
+
+            <hr>
+            <div class="flex">
+                <button class="btn" type="submit" name="bill_paid" value="bill_paid" onclick="paidModalSubmit()">
+                    Save
+                </button>
+                <button class="btn cancel" onclick="closeModal('.paidModal-open')">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- complemantery modal -->
+    <div class="compModal-open">
+
+        <div class="modal-header">
+            <span class="close-btn" onclick="closeModal('.compModal-open')">&times;</span>
+            <h1 class="modal-title">Complemantery Bill Modal</h1>
+        </div>
+        <!-- <form id="comp_bill" method="">
+                {% csrf_token %} -->
+
+        <div class="modal-content">
+            <input type="hidden" id="comp-form-id">
+            <label class="form-label">Date</label>
+            <input class="form-control" type="date" name="comp_date" id="comp-today-date">
+
+            <label class="form-label">Remarks</label>
+            <input class="form-control" id="comp_remarks" type="text" name="comp_remarks">
+
+            <label class="form-label">Amount</label>
+            <input class="form-control" id="comp_amount" type="text" name="comp_amount">
+
+            <label class="form-label">Total Remaining</label>
+            <input class="form-control" id="comp_bill_modal_balance" type="text" name="comp_balance">
+
+            <hr>
+            <div class="flex">
+                <button class="btn" name="comp_bill" type="submit" id="comp_bill" onclick="compModalSubmit()">
+                    Save
+                </button>
+                <button class="btn cancel" onclick="closeModal('.compModal-open')">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- cancelled modal  -->
+    <div class="cancelModal-open">
+
+        <div class="modal-header">
+            <span class="close-btn" onclick="closeModal('.cancelModal-open')">&times;</span>
+            <h1 class="modal-title">Cancel Bill Modal</h1>
+        </div>
+        <!-- <form id="cancel_bill" method="">
+                {% csrf_token %} -->
+
+        <div class="modal-content">
+            <input type="hidden" id="cancel-form-id">
+            <label class="form-label">Date</label>
+            <input class="form-control" id="cancel-today-date" type="date" name="cancel_date" required>
+
+            <label class="form-label">Reason</label>
+            <input class="form-control" type="text" name="reason" id="reason" required>
+
+            <label class="form-label">Total Bill</label>
+            <input class="form-control" type="text" id="cancel_bill_modal_balance" name="cancel_balance">
+
+            <label class="form-label">Amount</label>
+            <input class="form-control" type="text" id="bill_amount" name="bill_amount">
+
+            <hr>
+            <div class="flex">
+                <button class="btn" name="bill_paid" value="bill_paid" type="submit" onclick="cancelModalSubmit()">
+                    Save
+                </button>
+                <button class="btn cancel" onclick="closeModal('.cancelModal-open')">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <!-- <script>
+            let modalBtn = document.getElementById("paid_modal")
+            let modal = document.querySelector(".modal-open")
+            let closeBtn = document.querySelector(".close-btn")
+            modalBtn.onclick = function () {
+                modal.style.display = "block"
+            }
+            closeBtn.onclick = function () {
+                modal.style.display = "none"
+            }
+            window.onclick = function (e) {
+                if (e.target == modal) {
+                    modal.style.display = "block"
+                }
+            }
+        </script> -->
+    <!-- <script>
+        function download_to_excel() {
+
+            var tab_text = "<table><tr>";
+            var textRange = '';
+            var j = 0;
+            var tab = document.getElementById('MyTableID_Value'); // id of table
+
+            for (j = 0; j < tab.rows.length; j++) {
+                tab_text += tab.rows[j].innerHTML + "</tr>";
+            }
+
+            tab_text += "</table>";
+
+            var a = document.createElement('a');
+            var data_type = 'data:application/vnd.ms-excel';
+            a.href = data_type + ', ' + encodeURIComponent(tab_text);
+            //setting the file name
+            a.download = 'file_name.xls';
+            //triggering the function
+            a.click();
+            //just in case, prevent default behaviour
+            e.preventDefault();
+
+        }
+    </script> -->
+
+    <script>
+        function onlyOne(checkbox) {
+            var checkboxes = document.getElementsByName('check')
+            console.log(checkboxes)
+            checkboxes.forEach((item) => {
+                console.log(item)
+                if (item !== checkbox) item.checked = false
+            })
+        }
+
+        const print = document.getElementById('print_bill');
+        print.addEventListener('click', () => {window.print();});
+    </script>
+    <script src="{% static 'js/customer.js' %}"></script>
+    <script src="{% static 'js/jquery.cookie.js' %}"></script>
+    <!-- <script src="{% static 'js/sale.js' %}"></script> -->
+</body>
+
+</html>

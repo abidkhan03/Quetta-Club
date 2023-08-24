@@ -1,0 +1,368 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quetta Club</title>
+    <script src="https://cdn.jsdelivr.net/npm/@linways/table-to-excel@1.0.4/dist/tableToExcel.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script> -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+
+    <script>
+        window.state = {
+            'token': '{{ csrf_token }}',
+            'view_sale_form_url': "{% url 'Sales:view_sales' %}"
+        };
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- {% for message in messages %}
+        {% if message.tags == "error" %}
+        <div class="messages">
+            <div class="error">
+                {{message}}
+            </div>
+        </div>
+        {% else %}
+        <div class="messages">
+            <div class="success">
+                {{message}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %} -->
+
+        <div class="row">
+            <div class="card w-100">
+                <div>
+                    <div class="row">
+                        <h2>Customers</h2>
+                        
+                        <div class="form-group ml-5 w-50">
+                            <select name="select-rank" id="select-rank" class="form-control option" onchange="rankSelected(this)">
+                                <option value="" selected>Select Rank</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Army">Army</option>
+                                <option value="Members">Members</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <select name="search_field" id="search_field" class="form-control option ml-5">
+                                <!-- <option value="">Search By</option> -->
+                                <option value="bill_no" selected>Bill No.</option>
+                                <option value="PoS_no">PoS No</option>
+                                <option value="customer_id">Customer ID</option>
+                                <option value="month">Month</option>
+                                <option value="account_of">On Account of</option>
+                                <option value="created_date">Date</option>
+                                <option value="customer_name">Name</option>
+                                <option value="address">Address</option>
+                            </select>
+                            <input type="search" name="search_value" id="search_value" oninput="SearchbyName();"
+                                class="form-control ml-5 search" placeholder="search ....">
+
+                        </div>
+                        <!--  -->
+                        <div class="choose_file ml-5">
+                            <button type="button" class="icon" onclick="download_table_as_csv('Sales_data');">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" height="26px">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <table class="table" id="Sales_data">
+                        <thead class="table-header">
+
+                            <tr>
+                                <!-- <th>Ser No</th> -->
+                                <th>Bill No</th>
+                                <th>Rank</th>
+                                <th>POS NO</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>On Account Of</th>
+                                <th>Dated</th>
+                                <th>Month</th>
+                                <th>Amount</th>
+                                <th>Discount</th>
+                                <th>Net Amount</th>
+                                <th>Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for sale in sales_data %}
+                            {% if sale.amount > 0 and sale.net_amount > 0 %}
+
+                            <tr>
+                                <!-- <td>{{sale.id}}</td> -->
+                                <td>{{ sale.bill_no|default:"00" }}</td>
+                                <td>{{sale.customer_id.customer_rank}}</td>
+                                <td>{{ sale.PoS_no|default:"00" }}</td>
+                                <td>{{sale.customer_id.customer_name}}</td>
+                                <td>{{ sale.customer_id.customer_address|default:"--" }}</td>
+                                <td>{{ sale.account_of|default:"--" }}</td>
+                                <td>{{ sale.publish_date }}</td>
+                                <td>{{ sale.month|default:"--" }}</td>
+                                <td>{{ sale.amount|intcomma|default:"00" }}</td>
+                                <td>{{ sale.discount|intcomma|default:"00" }}</td>
+                                <td>{{ sale.net_amount|intcomma|default:"00" }}</td>
+                                <td>{{ sale.remarks|default:"--" }}</td>
+                                <td>
+                                    <div class="list">
+                                        <a href="{% url 'Sales:update_view_sale' %}?id={{sale.id}}"
+                                            style="background-color: #1e659c; color: white;">Edit</a>
+                                        <button class="modal" id="paid_modal"
+                                            onclick="paidMOdalOpen('{{sale.id}}','{{sale.net_amount}}')"
+                                            style="background-color: #00A300; color: white;">Paid</button>
+                                        <button id="comp_modal" class="modal" style="background-color: #1e659c; color: yellow;"
+                                            onclick="compModalOpen('{{sale.id}}','{{sale.net_amount}}')">Complemantery</button>
+                                        <button id="cancel_modal" class="modal"
+                                            onclick="cancelModalOpen('{{sale.id}}','{{sale.net_amount}}', '{{sale.amount}}')"
+                                            style="background-color: #6a6a6a;">Cancelled</button>
+                                        <a href="{% url 'Sales:delete_sale' sale.id %}"
+                                            style="background-color: #ae180d; color: white;">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {%endif%}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color: #727272;">
+                                <td>Total Bills:</td>
+                                <td id="total-bills" style="font-size: 1.5rem;" ><b>{{total_bills|intcomma}}</b></td>
+                                <td ></td>
+                                <td>Total Amount:</td>
+                                <td id="total-amount" style="font-size: 1.5rem;"><b>{{total_amount|intcomma}}</b></td>
+                                <td></td>
+                                <td></td>
+                                <td>Total Discounts:</td>
+                                <td id="total-discount" style="font-size: 1.5rem;"><b>{{total_discount|intcomma}}</b></td>
+                                <td></td>
+                                <td></td>
+                                <td>Total Net Amount:</td>
+                                <td id="total-net-amount" style="font-size: 1.5rem;"><b>{{total_net_amount|intcomma}}</b></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- paid modal -->
+        <div class="paidModal-open">
+
+            <div class="modal-header">
+
+                <span class="close-btn" onclick="closeModal('.paidModal-open')">&times;</span>
+                <h1 class="modal-title"><b>Paid Bill Modal</b></h1>
+            </div>
+            <!-- <form id="pay_bill" method="">
+                {% csrf_token %} -->
+            <input class="form-control" id="paid-form-id" type="hidden" name="formId" />
+
+            <div class="modal-content">
+                <label class="form-label">RV No</label>
+                <input class="form-control" type="text" name="rv_no" id="rv_no" required>
+
+                <label class="form-label">Date</label>
+                <input class="form-control" type="date" name="paid_date" id="today-date">
+
+                <label class="form-label">Total Bill</label>
+                <input class="form-control" type="text" id="pay_bill_modal_balance" name="paid_balance">
+
+                <label class="form-label">Amount</label>
+                <input class="form-control" type="text" name="paid_amount" id="paid_amount" required>
+
+
+                <label class="form-label">Remaining</label>
+                <input class="form-control" type="text" name="remaining_balance" id="remaing_amount">
+
+                <hr>
+                <div class="flex">
+                    <button class="btn" type="submit" name="bill_paid" value="bill_paid" onclick="paidModalSubmit()">
+                        Save
+                    </button>
+                    <button class="btn cancel" onclick="closeModal('.paidModal-open')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- complemantery modal -->
+        <div class="compModal-open">
+
+            <div class="modal-header">
+                <span class="close-btn" onclick="closeModal('.compModal-open')">&times;</span>
+                <h1 class="modal-title">Complemantery Bill Modal</h1>
+            </div>
+            <!-- <form id="comp_bill" method="">
+                {% csrf_token %} -->
+
+            <div class="modal-content">
+                <input type="hidden" id="comp-form-id">
+                <label class="form-label">Date</label>
+                <input class="form-control" type="date" name="comp_date" id="comp-today-date">
+
+                <label class="form-label">Remarks</label>
+                <input class="form-control" id="comp_remarks" type="text" name="comp_remarks">
+
+                <label class="form-label">Amount</label>
+                <input class="form-control" id="comp_amount" type="text" name="comp_amount">
+
+                <label class="form-label">Total Bill</label>
+                <input class="form-control" id="comp_bill_modal_balance" type="text" name="comp_balance">
+
+                <hr>
+                <div class="flex">
+                    <button class="btn" name="comp_bill" type="submit" id="comp_bill" onclick="compModalSubmit()">
+                        Save
+                    </button>
+                    <button class="btn cancel" onclick="closeModal('.compModal-open')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- cancelled modal  -->
+        <div class="cancelModal-open">
+
+            <div class="modal-header">
+                <span class="close-btn" onclick="closeModal('.cancelModal-open')">&times;</span>
+                <h1 class="modal-title">Cancel Bill Modal</h1>
+            </div>
+            <!-- <form id="cancel_bill" method="">
+                {% csrf_token %} -->
+
+            <div class="modal-content">
+                <input type="hidden" id="cancel-form-id">
+                <label class="form-label">Date</label>
+                <input class="form-control" id="cancel-today-date" type="date" name="cancel_date" required>
+
+                <label class="form-label">Reason</label>
+                <input class="form-control" type="text" name="reason" id="reason" required>
+
+                <label hidden class="">Total Bill</label>
+                <input hidden class="" type="text" id="cancel_bill_modal_balance" name="cancel_balance">
+
+                <label hidden class="">Amount</label>
+                <input hidden class="" type="text" id="bill_amount" name="bill_amount">
+
+                <hr>
+                <div class="flex">
+                    <button class="btn" name="bill_paid" value="bill_paid" type="submit" onclick="cancelModalSubmit()">
+                        Save
+                    </button>
+                    <button class="btn cancel" onclick="closeModal('.cancelModal-open')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function download_table_as_csv(Sales_data, separator = ',') {
+            // Select rows from table_id
+            var rows = document.querySelectorAll('table#' + Sales_data + ' tr');
+            // Construct csv
+            var csv = [];
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(separator));
+            }
+            var csv_string = csv.join('\n');
+            // Download it
+            var filename = Sales_data + '_' + new Date().toLocaleDateString() + '.csv';
+            var link = document.createElement('a');
+            link.style.display = 'none';
+            link.setAttribute('target', '_blank');
+            link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.getElementById("paid_amount").onchange = function () {
+            var balance = document.getElementById('pay_bill_modal_balance').value;
+            var amount = document.getElementById('paid_amount').value;
+            var total = balance - amount;
+            document.getElementById('remaing_amount').value = total;
+        };
+
+        document.getElementById('today-date').value = new Date().toDateInputValue();
+
+        setTimeout(fade_out, 3000);
+        function fade_out() {
+            $(".messages").fadeOut().empty();
+        }
+        $(".post-form")[0].reset();
+
+    </script>
+
+    <script src="{% static 'js/sale.js' %}"></script>
+    <script src="{% static 'js/jquery.cookie.js' %}"></script>
+</body>
+
+</html>

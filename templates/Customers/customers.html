@@ -1,0 +1,316 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script> -->
+    <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> -->
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script> -->
+
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/ui-lightness/jquery-ui.css" rel="stylesheet"
+        type="text/css" />
+    <title>Quetta Club</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% for message in messages %}
+        {% if message.tags == "error" %}
+        <div class="messages">
+            <div class="error">
+                {{message}}
+            </div>
+        </div>
+        {% else %}
+        <div class="messages">
+            <div class="success">
+                {{message}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="row">
+            <!-- Add customer -->
+            <div class="card col-40">
+                <form action="{% url 'Customers:customers' %}" method="POST" class="post-form"
+                    enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <h3 class="title">
+                            Add Customers
+                        </h3>
+
+                        <div class="choose_file ml-5">
+                            <button type="button" class="icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" height="24px">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m0-3l-3-3m0 0l-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                                </svg>
+                            </button>
+                            <input name="customer_file" type="file" accept=".xlsx, .xls, .csv" />
+                        </div>
+                        <div>
+                            <input class="btn ml-5" type="submit" id="customer_file_submit" name="customer_file_submit">
+                        </div>
+                    </div>
+                </form>
+                <form action="{% url 'Customers:customers' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div>
+                        <div class="form-group">
+
+                            <label for="" class="form-label">Customer Rank</label>
+                            <select name="customer_rank" id="rank" class="form-control" required>
+                                <!-- <option value="">Select Rank</option> -->
+                                <option value="Staff" selected>Staff</option>
+                                <option value="Army">Army</option>
+                                <option value="Members">Members</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" name="customer_name" id="customer_name" required
+                                placeholder="customer name" onchange="customerCheck(this)">
+                            <!-- {{form.customer_rank}} -->
+                        </div>
+                        <div class="form-group">
+
+
+                            <label for="" class="form-label">Address</label>
+                            <input type="text" class="form-control" required name="customer_address"
+                                placeholder="customer address">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="" class="form-label">Customer ID</label>
+                            <input type="text" class="form-control" name="customer_id" placeholder="customer id"
+                                required>
+                            <!-- {{form.customer_id}} -->
+                        </div>
+
+                    </div>
+
+                    <hr>
+                    <div class="flex">
+                        <button class="btn" type="submit" value="Save" name="Save">
+                            Save
+                        </button>
+                    </div>
+                    <hr style="margin-top: 45px;">
+                    <div>
+                        <label style="font-size: 22px; font-weight: bold; tab-size: 4;">Total Customers: </label>
+                        <span style="color: rgb(71, 0, 186); font-size: 22px; font-weight: bold; ">{{all_customers}}</span>
+                    </div>
+                    <hr>
+                    {% for staff in all_staffs %}
+                    <div style="margin-top: 20px;">
+                        <label style="font-size: 22px; font-weight: bold;">Total {{staff.customer_rank}}:  </label>
+                        <span style="color: rgb(71, 0, 186); font-size: 22px; font-weight: bold;">{{staff.count}}</span>
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
+            
+            <!-- Customers -->
+            <div class="card col-60">
+                <div>
+
+                    <!-- <h2>Customers</h2> -->
+                    <!-- <div class="choose_file ml-5">
+                        <button type="button" class="icon" onclick="download_table_as_csv('Customers_Data');">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" height="26px">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                            </svg>
+                        </button>
+                    </div> -->
+                    <div class="row">
+                        <h2>Customers</h2>
+                        <div class="form-group ml-5 w-50">
+                            <select name="search_field" id="search_field" class="form-control">
+                                <!-- <option value="">Search By</option> -->
+                                <option value="ID" selected>ID</option>
+                                <option value="Name">Name</option>
+                                <option value="Rank">Rank</option>
+                                <option value="Address">Address</option>
+                            </select>
+                            <input type="search" name="search_value" id="search_value"
+                                class="form-control ml-5 search" placeholder="search ....">
+
+                        </div>
+                        <!--  -->
+                        <div class="choose_file ml-5">
+                            <button type="button" class="icon" onclick="download_table_as_csv('Customers_Data');">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" height="26px">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <table class="table" id="Customers_Data">
+                        <thead class="table-header">
+                            <tr>
+                                <!-- <th>ID</th> -->
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Customer ID</th>
+                                <th>Due Amount</th>
+                                <th>Actions</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            {% if customer_table %}
+                            {% for customer in customer_table %}
+                            <tr>
+                                <!-- <td>{{customer.id}}</td> -->
+                                <td>{{customer.customer_rank}}</td>
+                                <td>{{customer.customer_name}}</td>
+                                <td>{{customer.customer_address}}</td>
+                                <td>{{customer.customer_id}}</td>
+                                <td>0</td>
+                                <td>
+                                    <div class="list-btn">
+                                        <a href="{% url 'Customers:customer_bill' %}?id={{customer.id}}"
+                                            style="background-color:#1e659c; text-align: center;">Add a Bill</a>
+                                        <a href="{% url 'Customers:customer_details' %}?id={{customer.id}}"
+                                            style="text-align: center;">All
+                                            Bills</a>
+                                        <a href="{% url 'Customers:customer_update' %}?id={{customer.id}}"
+                                            style="background-color: #1e659c; color: rgb(255, 255, 255);">Edit</a>
+
+                                        <a href="{% url 'Customers:delete_customer' customer.id %}"
+                                            style="background-color: #ae180d; color: rgb(255, 255, 255);">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+
+
+                            {% if customers_table %}
+                            {% for customer in customers_table %}
+                            <tr>
+                                <td>{{ customer.customer_rank}}</td>
+                                <td>{{ customer.customer_name}}</td>
+                                <td>{{ customer.customer_address}}</td>
+                                <td>{{ customer.customer_id }}</td>
+                                <td>{{ customer.total_amount}}</td>
+                                <td>
+                                    <div class="list-btn">
+                                        <a href="{% url 'Customers:customer_bill' %}?id={{customer.id}}"
+                                            style="background-color:#1e659c; text-align: center;">Add a Bill</a>
+                                        <a href="{% url 'Customers:customer_details' %}?id={{customer.id}}"
+                                            style="text-align: center;">All
+                                            Bills</a>
+                                        <a href="{% url 'Customers:customer_update' %}?id={{customer.id}}"
+                                            style="background-color: #1e659c; color: rgb(255, 255, 255);">Edit</a>
+
+                                            <a href="{% url 'Customers:delete_customer' customer.id %}"
+                                            style="background-color: #ae180d; color: rgb(255, 255, 255);">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <script text="javascript">
+        function download_table_as_csv(Customers_Data, separator = ',') {
+            // Select rows from table_id
+            var rows = document.querySelectorAll('table#' + Customers_Data + ' tr');
+            // Construct csv
+            var csv = [];
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(separator));
+            }
+            var csv_string = csv.join('\n');
+            // Download it
+            var filename = Customers_Data + '_' + new Date().toLocaleDateString() + '.csv';
+            var link = document.createElement('a');
+            link.style.display = 'none';
+            link.setAttribute('target', '_blank');
+            link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        setTimeout(fade_out, 4000);
+        function fade_out() {
+            $(".messages").fadeOut().empty();
+        }
+        $(".post-form")[0].reset();
+    </script>
+    <!-- <script>
+        $(document).ready(function () {
+            // messages timeout for 4 sec 
+            
+        }
+    </script> -->
+    <script src="{% static 'js/customer.js' %}"></script>
+</body>
+
+</html>

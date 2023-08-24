@@ -1,0 +1,276 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quetta Club</title>
+    <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script> -->
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="row">
+            <div class="card w-100">
+                <div class="">
+                    <div class="row">
+                        <h2>Customers</h2>
+                        <div class="form-group ml-5">
+                            <select name="select-rank" id="select-rank" class="form-control" onchange="SearchByRankReport(this)">
+                                <option value="" selected>select rank</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Members">Members</option>
+                                <option value="Army">Army</option>
+                                <option value="other">other</option>
+                            </select>
+                            <select name="search_field" id="search_field" class="form-control">
+                                <!-- <option value="">Search By</option> -->
+                                <option value="bill_no" selected>Bill No</option>
+                                <option value="rv_no">RV No</option>
+                                <option value="PoS_no">PoS No</option>
+                                <option value="month">Month</option>
+                                <option value="account_of">On Account of</option>
+                                <option value="date">Date</option>
+                                <!-- <option value="rank">Rank</option> -->
+                                <option value="name">Name</option>
+                                <option value="address">Address</option>
+                            </select>
+                            <input type="search" name="search_value" id="search_value" oninput="SearchbyNameReport();"
+                                class="form-control ml-5 search" placeholder="search ....">
+
+                        </div>
+                        <!--  -->
+                        <form class="row" action="{% url 'Sales:reports' %}" method="post">
+                            {% csrf_token %}
+
+                            <div class="form-data ml-5">
+                                <label for="" class="form-label">Paid</label>
+                                <hr>
+                                <input type="checkbox" class="cursor-pointer rounded-md" id="check" name="check"
+                                    value="Paid" onclick="onlyOne(this)" style="width:20px; height:20px; ">
+                            </div>
+                            <div class="form-data ml-5">
+                                <label for="" class="form-label">Complementary</label>
+                                <hr>
+                                <input type="checkbox" class="cursor-pointer rounded-md" id="check" name="check"
+                                    value="Complementery" onclick="onlyOne(this)" style="width:20px; height:20px;">
+                            </div>
+                            <div class="form-data ml-5">
+                                <label for="" class="form-label">Cancelled</label>
+                                <hr>
+                                <input type="checkbox" class="cursor-pointer rounded-md" id="check" name="check"
+                                    value="Cancel" onclick="onlyOne(this)" style="width:20px; height:20px;">
+                            </div>
+                            <div class="flex flex-row gap-x-2 ml-5">
+                                <div class="form-data ml-5">
+                                    <label for="" class="m-1">From</label>
+                                    <input type="date" id="from-date" name="from-date" required
+                                        value="{{from_date|date:'Y-m-d'}}" class="form-control">
+                                </div>
+
+                                <div class="form-data ml-5">
+                                    <label for="" class="m-1">To</label>
+                                    <input type="date" id="to-date" name="to-date" required
+                                        value='{{to_date|date:"Y-m-d"}}' class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-data ml-5">
+                                <button class="icon" name="report_generate"
+                                    value="report_generate"><strong>Generate</strong></button>
+                            </div>
+                            <div class="form-data ml-5">
+                                <input type="button" class="icon" id="print_bill" value=" Print "
+                                    style="font-weight: bold;" />
+                            </div>
+
+                            <div class="choose_file ml-5">
+                                <button type="button" class="icon" onclick="download_table_as_csv('report');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" height="26px">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                                    </svg>
+                                </button>
+                                
+                            </div>
+                    </div>
+                    {% if record %}
+                    <table class="table" id="report">
+                        <thead class="table-header">
+                            <tr>&nbsp;
+                            </tr>
+                            <tr>
+                                <!-- <th>Ser No</th> -->
+                                <th>Bill No</th>
+                                <th>RV No</th>
+                                <th>POS NO</th>
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th style="font-weight: bold;">Bill Date</th>
+                                <th>On Account Of</th>
+                                <th>Month</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for paid in record %}
+
+                            <tr>
+                                <!-- <td>{{sale.id}}</td> -->
+                                <td>{{ paid.sale_id.bill_no }}</td>
+                                <td>{{ paid.rv_no|default:"00" }}</td>
+                                <td>{{ paid.sale_id.PoS_no|default:"00" }}</td>
+                                <td>{{paid.sale_id.customer_id.customer_rank}}</td>
+                                <td>{{paid.sale_id.customer_id.customer_name}}</td>
+                                <td>{{ paid.sale_id.address }}</td>
+                                <td>{{ paid.sale_id.created_date|date:"d-M-Y" }}</td>
+                                <td>{{ paid.sale_id.account_of }}</td>
+                                <td>{{ paid.sale_id.month|default:"Nil" }}</td>
+                                <td>{{ paid.amount|intcomma }}</td>
+                                <td>{{ paid.date|date:"d-M-Y" }}</td>
+
+                                <td>
+                                    {% if paid.status == "Paid" %}
+                                    <p class="modal"
+                                        style="background-color: #00A300; text-align: center; color: rgb(246, 244, 244);">
+                                        {{paid.status}}</p>
+                                    {% elif paid.status == "Complementery" %}
+                                    <p class="modal"
+                                        style="background-color: #1e659c; text-align: center; color: rgb(255, 255, 0);">
+                                        {{paid.status}}</p>
+                                    {% elif paid.status == "Cancelled" %}
+                                    <p class="modal"
+                                        style="background-color: #6a6a6a; text-align: center; color: rgb(246, 244, 244);">
+                                        {{paid.status}}</p>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color: #727272;">
+                                <td>Total Paid Amount:</td>
+                                <td style="font-size: 1.5rem;"><b>{{total_paid_amount|intcomma|default:"00"}}</b></td>
+                                <td>Total Comp Amount:</td>
+                                <td style="font-size: 1.5rem;"><b>{{total_comp_amount|intcomma|default:"00"}}</b></td>
+                                <td>Total Bills Amount:</td>
+                                <td style="font-size: 1.5rem;"><b>{{total_amount|intcomma|default:"0"}}</b></td>
+                                <td>Total Paid Bills:</td>
+                                <td style="font-size: 1.5rem;"><b>{{total_paid|intcomma|default:"00"}}</b></td>
+                                <!-- <td></td> -->
+                                <td>Total Complementary Bills:</td>
+                                <td style="font-size: 1.5rem;"><b>{{total_complementary|intcomma|default:"00"}}</b></td>
+                                <!-- <td></td> -->
+                                <td>Total Cancelled Bills:</td>
+                                <td style="font-size: 1.5rem;"><b>{{total_cancelled|intcomma|default:"00"}}</b></td>
+                                <!-- <td></td> -->
+                            <!-- <td>Total Cancelled Amount:</td>
+                                <td><b>{{total_cancel_amount|intcomma|default:"00"}}</b></td> -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        function download_table_as_csv(report, separator = ',') {
+            // Select rows from table_id
+            var rows = document.querySelectorAll('table#' + report + ' tr');
+            // Construct csv
+            var csv = [];
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(separator));
+            }
+            var csv_string = csv.join('\n');
+            // Download it
+            var filename = report + '_' + new Date().toLocaleDateString() + '.csv';
+            var link = document.createElement('a');
+            link.style.display = 'none';
+            link.setAttribute('target', '_blank');
+            link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        function onlyOne(checkbox) {
+            var checkboxes = document.getElementsByName('check')
+            console.log(checkboxes)
+            checkboxes.forEach((item) => {
+                console.log(item)
+                if (item !== checkbox) item.checked = false
+            })
+        }
+        const print = document.getElementById('print_bill');
+        print.addEventListener('click', () => { window.print(); });
+    </script>
+    <script src="{% static 'js/report.js' %}"></script>
+    <!-- <script src="{% static 'js/sales.js' %}"></script> -->
+    <script src="{% static 'js/jquery.cookie.js' %}"></script>
+</body>
+
+</html>

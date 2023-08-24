@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <title>Quetta Club</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="row">
+            <div class="card">
+                <h2 class="title">Bill Edit</h2>
+                <!-- <h2>Edit Bill</h2> -->
+                
+                <form action="{% url 'Sales:update_view_sale' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{sales_data.id}}" name="saleId">
+                    <div class="grid col-100">
+                        <div class="grid-item">
+                            <label class="form-label">Bill No</label>
+                            <input class="form-control" type="text" name="bill_no" value="{{sales_data.bill_no}}">
+                        </div>
+                        <div class="grid-item">
+                            <label class="form-label">PoS No</label>
+                            <input class="form-control" type="text" name="PoS_no" value="{{sales_data.PoS_no}}">
+                        </div>
+                        <div class="grid-item">
+                            <label class="form-label">Date</label>
+                            <input class="form-control" id="today-date" type="date" name="date" value="{{sales_data.created_date}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Month</label>
+                            <input class="form-control" type="text" name="month" value="{{sales_data.month}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Rank</label>
+                            <select name="customer_rank" id="rank" class="form-control" aria-readonly="true">
+                                <option value="{{sales_data.customer_id.customer_rank}}">{{sales_data.customer_id.customer_rank}}</option>
+                                <option value="Army">Army</option>
+                                <option value="Members">Member</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="">
+                            <label class="form-label">Name</label>
+                            <input class="form-control" type="text" value="{{sales_data.customer_id.customer_name}}" name="customer_name" id="name" onkeydown="getCustomerName();">
+                        </div>
+
+                        <div class="">
+                            <label class="form-label">Address</label>
+                            <input class="form-control" type="text" name="address" value="{{sales_data.customer_id.customer_address}}" id="address" onkeydown="getCustomerName();">
+                        </div>
+                        <div class="">
+                            <label class="form-label">On Account of</label>
+                            <input class="form-control" type="text" name="account_of" value="{{sales_data.account_of}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Amount</label>
+                            <input class="form-control" type="text" name="amount" value="{{sales_data.amount}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Discount</label>
+                            <input class="form-control" type="text" name="discount" value="{{sales_data.discount}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Net Amount</label>
+                            <input class="form-control" type="text" name="net_amount" value="{{sales_data.net_amount}}">
+                        </div>
+                        <div class="">
+                            <label class="form-label">Remarks</label>
+                            <input class="form-control" type="text" name="remarks" value="{{sales_data.remarks}}">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="flex">
+                        <button class="btn" name="update_sale" value="update_sale">
+                            Update
+                        </button>
+                        <button class="btn cancel" name="cancel" value="cancel">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        var today = new Date();
+        document.getElementById("today-date").value = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+
+        let names = [];
+        let ranks = [];
+        let addresses = [];
+        {% for customer in customers %}
+        names.push('{{ customer.customer_name }}');
+        ranks.push('{{ customer.customer_rank }}');
+        addresses.push('{{ customer.customer_address }}');
+        {% endfor %}
+
+        // funciton for get customer name
+        function getCustomerName() {
+            let rank = $('#rank').find(":selected").text();
+            let availableNames = [];
+            let availableaddress = [];
+            for (let i = 0; i < names.length; i++) {
+                console.log(availableNames);
+                if (rank == ranks[i]) {
+                    availableNames.push(names[i]);
+                }
+            };
+            for (let i = 0; i < names.length; i++) {
+                if (rank == ranks[i]) {
+                    availableaddress.push(addresses[i]);
+                }
+            };
+            $("#name").autocomplete({
+                source: availableNames
+            });
+            $("#address").autocomplete({
+                source: availableaddress
+            });
+        };
+    </script>
+</body>
+
+</html>

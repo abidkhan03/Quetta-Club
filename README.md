@@ -14,9 +14,6 @@ Developed on Django, Query, Ajax and rest framework.
 - easy to use
 - easy update and delete record on uploding time.
 
-## Tech
-
-own soft technology :
 
 ## Installation
 
@@ -27,9 +24,12 @@ Install the dependencies and start the server.
 ```sh
 cd QuettaClub
 pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manange.py runserver
+python3 manage.py makemigrations
+python3 manage.py migrate
+# First create a super user by providing username and password
+python3 manage.py createsuperuser
+
+python3 manage.py runserver
 ```
 Verify the deployment by navigating to your server address in
 your preferred browser.

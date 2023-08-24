@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script> -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script> -->
+
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/ui-lightness/jquery-ui.css" rel="stylesheet"
+        type="text/css" />
+    <title>Quetta Club</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+    
+    {% for message in messages %}
+        {% if message.tags == "error" %}
+        <div class="messages">
+            <div class="error">
+                {{message}}
+            </div>
+        </div>
+        {% else %}
+        <div class="messages">
+            <div class="success">
+                {{message}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    <div class="container">
+        <div class="row">
+            <div>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo">
+            </div>
+            <ul class="">
+                <li>
+                    <a href="{% url 'Customers:index' %}">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'Customers:customers' %}">
+                        <div>Customers</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:sales' %}">
+                        <div>Bills</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'Sales:view_sales' %}">
+                        <div>View Bills</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="{% url 'Sales:reports' %}">
+                        <div>Reports</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="row">
+            <!-- Add customer -->
+            <div class="card col-40">
+                <h2 class="title">Edit Customer</h2>
+                <!-- <h2> Customer</h2> -->
+                <form action="{% url 'Customers:customer_update' %}" method="post" 
+                    enctype="multipart/form-data" class="post-form">
+                    {% csrf_token %}
+
+                    
+                    <input type="hidden" hidden value="{{customer_data.id}}" name='cid'>
+                    <div>
+                        <div class="form-group">
+
+                            <label for="" class="form-label">Customer Rank</label>
+                            <select name="customer_rank" id="rank" class="form-control">
+                                <option value="{{customer_data.customer_rank}}">{{customer_data.customer_rank}}</option>
+                                <option value="Army">Army</option>
+                                <option value="Members">Members</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" name="customer_name" value="{{customer_data.customer_name}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label">Address</label>
+                            <input type="text" class="form-control" name="customer_address"
+                            value="{{customer_data.customer_address}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label">Customer ID</label>
+                            <input type="text" class="form-control" name="customer_id" value="{{customer_data.customer_id}}">
+                        </div>
+
+                    </div>
+
+                    <hr>
+                    <div class="flex">
+                        <button class="btn" type="submit" value="update_customer" name="update_customer">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    </div>
+    <script>
+        setTimeout(fade_out, 4000);
+        function fade_out() {
+            $(".messages").fadeOut().empty();
+        }
+        $(".post-form")[0].reset();
+    </script>
+    <script src="{% static 'js/customer.js' %}"></script>
+</body>
+
+</html>
