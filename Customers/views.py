@@ -2,7 +2,7 @@
     Authors: Abid Khan and Ehtisham
     
     Repository: https://github.com/abidkhan03,
-                https://github.com/codewithehtisham
+                https://github.com/CodeWithEhtisham
 '''
 
 from multiprocessing.sharedctypes import Value
