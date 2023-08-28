@@ -1,3 +1,10 @@
+'''
+    Authors: Abid Khan and Ehtisham
+    
+    Repository: https://github.com/abidkhan03,
+                https://github.com/codewithehtisham
+'''
+
 from multiprocessing.sharedctypes import Value
 from django.shortcuts import render, redirect
 from django.urls import path, reverse
